@@ -21,17 +21,45 @@ Head to the [Medusa Cloud signup page](https://cloud.medusajs.com/signup) to get
 - A [Medusa Cloud](https://cloud.medusajs.com) account with the GitHub app authorized
 - API keys for any third-party services you plan to use (Stripe, Resend, Algolia, etc.)
 
+## Prepare the template for Medusa Cloud
+
+Medusa Cloud **does not support Bun**. The Mercur basic template ships configured for Bun, so before pushing the project to GitHub you need to switch it to a package manager Medusa Cloud supports (for example, Yarn):
+
+1. Delete `bun.lock` from the project root.
+2. Open the root `package.json` and remove the `"packageManager"` field.
+   ![Remove packageManager from package.json](/images/v2/package-manager.png)
+3. Delete the existing `node_modules` directory.
+4. Run `yarn install` to generate a `yarn.lock`.
+
+```bash
+rm bun.lock
+rm -rf node_modules
+# then remove the "packageManager" field from package.json
+yarn install
+```
+
+Commit `yarn.lock` (and the updated `package.json`) and push to GitHub before continuing.
+
+<Warning>
+  Leaving `bun.lock` or the `"packageManager": "bun@..."` field in place will cause the Medusa Cloud install step to fail, because Bun is not available in the build environment.
+</Warning>
+
 ## Setup
 
-1. On the main dashboard view, click the **Create project** button.
-2. Thanks to the GitHub integration, Medusa Cloud can access your codebase and automatically pull the code. Choose your Mercur repository from the list and click **Continue**.
-   ![Choose repository](/images/cloud_2.png)
-3. Under project details, choose a name for your project. You can also pick a custom subdomain.
-   ![Basic project settings](/images/cloud_3.png)
-4. Head to the **Build details** section. Under **Project root directory** enter `/packages/api`. Then, choose the first admin user credentials.
-   ![Build details](/images/cloud_4.png)
-5. The last configuration step is environment variables. Medusa Cloud automatically provisions a database, Redis, and file storage, so you don't have to configure them.
-   ![Environment variables](/images/cloud_5.png)
+1. From the Medusa Cloud dashboard, choose **Import your existing repository into the Cloud** (the Mercur project lives in your own GitHub repo, not in the bundled DTC/B2B starters).
+   ![Medusa Cloud welcome screen](/images/v2/cloud_1.png)
+2. On the **Repository** step, make sure the Medusa Cloud GitHub app is installed, pick your Mercur repository from the list, and click **Continue**.
+   ![Choose repository](/images/v2/cloud_2.png)
+3. On the **Configure** step, fill in:
+   - **Project name** and **Custom subdomain**.
+   - **Region** closest to your users.
+   - **Medusa root directory**: `/packages/api`.
+   - **Initial user** — the first admin email and password.
+
+   Leave **Storefront root directory** empty — the Mercur basic template doesn't ship a storefront, so deploy your storefront separately.
+   ![Configure project — name, region, Medusa root directory](/images/v2/cloud_3.png)
+4. Scroll down to **Environment variables** and add the **Backend Environment Variables** below. Medusa Cloud provisions the database, Redis, and file storage automatically, so you don't need to set those.
+   ![Environment variables](/images/v2/cloud_4.png)
 
 Only the following variables should be set:
 
@@ -69,11 +97,9 @@ ALGOLIA_API_KEY=
   guide](/how-to-guides/stripe-connect-integration).
 </Info>
 
-6. Click **Create**. The build and deploy process will start and can take a few minutes to complete.
+5. Click **Create**. The build and deploy process will start and can take a few minutes to complete.
 
-You can change these variables later in environment settings, and switch the deployment branch at any time. Medusa Cloud will automatically pull and rebuild your environment whenever a new commit is pushed to the selected branch.
-
-![ENV settings](/images/cloud_6.png)
+You can change these variables later from the project's environment settings, and switch the deployment branch at any time. Medusa Cloud will automatically pull and rebuild your environment whenever a new commit is pushed to the selected branch.
 
 ## After deployment
 
